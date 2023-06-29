@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "scmcoat"
@@ -10,7 +10,7 @@ authors = [
 ]
 description = "Wraps FaIR simple climate model with specific settings for use across projects"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
@@ -18,5 +18,12 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/pypa/sampleproject"
-"Bug Tracker" = "https://github.com/pypa/sampleproject/issues"
+"Homepage" = "https://github.com/kemccusker/scmcoat"
+"Bug Tracker" = "https://github.com/kemccusker/scmcoat/issues"
+
+dependencies = [
+    "fair~=1.6.4",
+    "numpy",
+    "pandas",
+    "xarray",
+]
