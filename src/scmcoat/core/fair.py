@@ -287,7 +287,7 @@ class FaIRModel:
         import pandas as pd
         import pkg_resources
         
-        fn = pkg_resources.resource_filename("scmhug","testdata/rcp45emissions.csv")
+        fn = pkg_resources.resource_filename("scmcoat","testdata/rcp45emissions.csv")
 
         return pd.read_csv(fn)
     
