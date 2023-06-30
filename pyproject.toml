@@ -16,14 +16,13 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-
-[project.urls]
-"Homepage" = "https://github.com/kemccusker/scmcoat"
-"Bug Tracker" = "https://github.com/kemccusker/scmcoat/issues"
-
 dependencies = [
     "fair~=1.6.4",
     "numpy",
     "pandas",
     "xarray",
 ]
+
+[project.urls]
+"Homepage" = "https://github.com/kemccusker/scmcoat"
+"Bug Tracker" = "https://github.com/kemccusker/scmcoat/issues"
