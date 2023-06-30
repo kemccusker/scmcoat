@@ -50,19 +50,19 @@ Here a `simulation` equal to `-1` indicates it's not running an ensemble of simu
 
 ## Examples: 
 ### Run v1.* FaIR with demo emissions (CMIP5 RCP4.5)
+
 ```python
 
-import scmcoat
-import scmcoat.core.fair as coat
+import scmcoat as sc
 
 # initialize the model
-fm = coat.FaIRModel()
+fm = sc.FairModel()
 
 # Open up the test emissions to use as a demo
 emissions = fm.get_test_emissions()
 
 # run FaIR with these emissions under its default settings
-response = fm.run(emissions) # an xr.Dataset
+response = fm.run(emissions)  # an xr.Dataset
 
 response.temperature.plot()
 

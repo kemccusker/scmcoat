@@ -4,7 +4,7 @@
     
     functions to run FaIR simple climate model given emissions
 """
-from ..types import ClimateParams, ClimateResponse #Emissions, 
+from scmcoat.types import ClimateParams, ClimateResponse #Emissions,
 
 import numpy as np
 import xarray as xr
@@ -50,7 +50,7 @@ FAIR_EMISSIONS_GASES = ['CO2_Fossil',
                 'CH3Br', 
                 'CH3Cl' ]
 
-class FaIRModel:
+class FairModel:
     """
         implementation of the ClimateModel Protocol
     """
