@@ -1,5 +1,5 @@
 """
-    runner.py
+    core.py
     June 23 2023
     
     functions to run FaIR simple climate model given emissions
@@ -49,16 +49,17 @@ FAIR_EMISSIONS_GASES = ['CO2_Fossil',
                 'Halon2402',
                 'CH3Br', 
                 'CH3Cl' ]
+DEBUG = False # extra output messages
 
 class FairModel:
     """
         implementation of the ClimateModel Protocol
     """
     
-    def __init__(self):
+    def __init__(self, debug=False):
         self.params = None
         self.simid = -1
-
+        DEBUG = debug
     def __repr__(self):
         return f"{type(self).__name__}(params={self.params!r}, simid={self.simid})"
     
@@ -107,13 +108,15 @@ class FairModel:
 
         if self.params is None:
 
-            print(f"Running default FaIR, v{fair.__version__}")
+            if DEBUG:
+                print(f"Running default FaIR, v{fair.__version__}")
             ret = fair.forward.fair_scm(emissions=emiss, useMultigas=useMultigas)
             return ret
         else:
 
             args = self.params.sel(simulation=self.simid)
-            print(f"Running FaIR, v{fair.__version__}. simid: {self.simid}")
+            if DEBUG:
+                print(f"Running FaIR, v{fair.__version__}. simid: {self.simid}")
             
             if not useMultigas:
                 raise NotImplementedError("can't run in CO2-only mode with args @@@@for now")
@@ -188,7 +191,7 @@ class FairModel:
 
             return C, F, T, ariaci, lambda_eff, ohc, heatflux
     
-    def run(self, emiss, simid=None, emissions_driven=True, useMultigas=True):#, return_xr=True):
+    def run(self, emissda, simid=None, emissions_driven=True, useMultigas=True):#, return_xr=True):
         """
             Run installed version of FaIR (so far tested on FaIR v1.*) in emissions-driven mode.
 
@@ -213,15 +216,15 @@ class FairModel:
         if simid is not None:
             self.simid = simid
             
-        ## TODO one way or another: Enforce the gas dimension of the emissions object
-        emiss = emiss[["year"]+ FAIR_EMISSIONS_GASES].copy()
+        ## TODO add validate func to enforce the order of gas dimension of the emissions object
+        emiss = emissda.copy()
         
         # default time dimensions for different versions of FaIR v1.*
         # TODO check if other time dimensions work
         if emiss.shape[0] == 736:
             reference_year = 1765   
         elif emiss.shape[0] == 751:
-            reference_year = 1751
+            reference_year = 1750
         else:
             raise NotImplementedError("emissions time dimension is not recognized")
 
@@ -236,6 +239,7 @@ class FairModel:
             self.get_list_of_concentration_gases()
         )  # gets list of gases names from this function defined above
 
+        # TODO generalize somehow?
         if len(ret) == 3:
             C,F,T = ret
         elif len(ret) == 7:
