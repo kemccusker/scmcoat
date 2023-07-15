@@ -114,7 +114,10 @@ class FairModel:
             return ret
         else:
 
-            args = self.params.sel(simulation=self.simid)
+            if self.simid == "median":
+                args = self.params.median_params
+            else:
+                args = self.params.params.sel(simulation=self.simid)
             if DEBUG:
                 print(f"Running FaIR, v{fair.__version__}. simid: {self.simid}")
             

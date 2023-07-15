@@ -19,6 +19,16 @@ ClimateResponse = Dataset
 class ClimateParams:
     params: Dataset
 
+    @property
+    def median_params(self):
+        
+        pdropped = self.params.drop(["ghg_forcing","tropO3_forcing"])
+        pmedian = pdropped.median(dim="simulation")
+        pmedian["ghg_forcing"] = self.params["ghg_forcing"]
+        pmedian["tropO3_forcing"] = self.params["tropO3_forcing"]
+        
+        return pmedian
+
 # @dataclass # @@@ can this be a dataclass and a Protocol??
 # class Emissions():#Protocol? can't be instantiated
 #     emissions: DataArray # note can be year x gas or just year @@@
