@@ -1,33 +1,16 @@
-from dataclasses import dataclass
-from typing import Protocol
-from xarray import Dataset, DataArray
-from pandas import DataFrame
+# from scmcoat.core import ClimateParams
 
-#TODO: require specific climate param settings for FaIR?
-# ClimateParams = Dataset
-ClimateResponse = Dataset
+# from dataclasses import dataclass
+# from typing import Protocol
+# from xarray import Dataset, DataArray
+# from pandas import DataFrame
+
+# ClimateResponse = Dataset
 
 # TODO: how to enforce a specific format for Emissions?
 # Emissions = DataArray# note can be year x gas or just year @@@
 
 
-# TODO: Should require "beta0", "beta1" and "beta2" variables in this
-# QuadraticDamageCoefficients = Dataset
-
-
-@dataclass
-class ClimateParams:
-    params: Dataset
-
-    @property
-    def median_params(self):
-        
-        pdropped = self.params.drop(["ghg_forcing","tropO3_forcing"])
-        pmedian = pdropped.median(dim="simulation")
-        pmedian["ghg_forcing"] = self.params["ghg_forcing"]
-        pmedian["tropO3_forcing"] = self.params["tropO3_forcing"]
-        
-        return pmedian
 
 # @dataclass # @@@ can this be a dataclass and a Protocol??
 # class Emissions():#Protocol? can't be instantiated
@@ -38,10 +21,10 @@ class ClimateParams:
 #         returns list of emissions gases in correct order
 #         """
 
-class ClimateModel(Protocol):
-    def run(self, x: DataFrame, y: ClimateParams) -> ClimateResponse:
-        """
-        A ClimateModel can project change in global mean surface temp given GHG emissions
-        """
+# class ClimateModel(Protocol):
+#     def run(self, x: DataFrame, y: ClimateParams) -> ClimateResponse:
+#         """
+#         A ClimateModel can project change in global mean surface temp given GHG emissions
+#         """
 
-    # TODO add inverse run
+#     # TODO add inverse run
