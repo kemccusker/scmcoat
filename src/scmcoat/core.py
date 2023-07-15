@@ -4,11 +4,11 @@
     
     functions to run FaIR simple climate model given emissions
 """
-from scmcoat.types import ClimateParams, ClimateResponse #Emissions,
 
 import numpy as np
 import xarray as xr
 import fair
+from dataclasses import dataclass
 
 FAIR_EMISSIONS_GASES = ['CO2_Fossil',
                 'CO2_Land',
@@ -49,26 +49,57 @@ FAIR_EMISSIONS_GASES = ['CO2_Fossil',
                 'Halon2402',
                 'CH3Br', 
                 'CH3Cl' ]
-DEBUG = False # extra output messages
+
+
+#TODO: require specific climate param settings for FaIR?
+#  This current set up has a lot of specificity in that
+#  running FaIR expects very specific data variables in the 
+#  ClimateParams.params Dataset (so far this is not enforced).
+@dataclass
+class ClimateParams:
+    """
+        Currently, the setup of FairModel expects that ClimateParams.params
+        is from the xr.Dataset of the AR6 JSON
+        file containing FaIR climate parameters used in the report. The
+        arguments with time dimensions are all of length 751 (reference year
+        1750).
+        TODO point to the param processing and creation of netcdf file.
+    """
+    params: xr.Dataset
+
+    @property
+    def median_params(self):
+        
+        # drop string arguments
+        pdropped = self.params.drop(["ghg_forcing","tropO3_forcing"])
+        # take the median of numerical args
+        pmedian = pdropped.median(dim="simulation")
+        # add string args back to dataset
+        pmedian["ghg_forcing"] = self.params["ghg_forcing"]
+        pmedian["tropO3_forcing"] = self.params["tropO3_forcing"]
+        
+        return pmedian
 
 class FairModel:
     """
         implementation of the ClimateModel Protocol
     """
     
-    def __init__(self, debug=False):
-        self.params = None
-        self.simid = -1
-        DEBUG = debug
+    def __init__(self, params=None, simid="default", debug=False):
+        self.params = params
+        self.simid = simid
+        self.debug = debug
     def __repr__(self):
         return f"{type(self).__name__}(params={self.params!r}, simid={self.simid})"
     
-    def set_params(self, params: ClimateParams, simid: int):
-        self.params = params
-        self.simid = simid
-                
     def get_list_of_concentration_gases(self):
-        gas_species_names = [
+        """
+            returns a list of gas names in the order of the `concentration` response
+            to a run of FairModel
+            
+            TODO remove getter. Access the attribute directly
+        """
+        conc_gas_species_names = [
             "co2",
             "ch4",
             "n2o",
@@ -101,30 +132,40 @@ class FairModel:
             "ch3br",
             "ch3cl",
         ]
-        return gas_species_names
+        return conc_gas_species_names
 
 
     def _run(self, emiss, useMultigas=True):
 
+        # === move next block to utils?
         if self.params is None:
 
-            if DEBUG:
+            if self.debug:
                 print(f"Running default FaIR, v{fair.__version__}")
+            # ignore simid
             ret = fair.forward.fair_scm(emissions=emiss, useMultigas=useMultigas)
             return ret
         else:
-
+            if self.simid == "default":
+                if self.debug:
+                    print("ClimateParams are not None and simid='default'. Running with median_params.")
+                    
+                self.simid = "median"
+                
             if self.simid == "median":
                 args = self.params.median_params
             else:
                 args = self.params.params.sel(simulation=self.simid)
-            if DEBUG:
+            if self.debug:
                 print(f"Running FaIR, v{fair.__version__}. simid: {self.simid}")
-            
+        # ===
+        
             if not useMultigas:
                 raise NotImplementedError("can't run in CO2-only mode with args @@@@for now")
 
             # default time dimensions for different versions of FaIR v1.*
+            # TODO generalize time dim. 
+            # TODO test different length of emissions time series
             if emiss.shape[0] == 736:
                 reference_year = 1765
 
@@ -151,6 +192,8 @@ class FairModel:
                 natural[361:, :] = args["natural"][
                     -1, :
                 ]  # hold the last element constant for the rest of the array
+            else:
+                raise NotImplementedError("Unable to handle emissions other than lengths 736 or 751")
 
             C, F, T, ariaci, lambda_eff, ohc, heatflux = fair.forward.fair_scm(
                 emissions=emiss,

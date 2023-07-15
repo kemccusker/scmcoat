@@ -68,4 +68,30 @@ response.temperature.plot()
 
 ```
 
+### Run v1.* FaIR with demo emissions (CMIP5 RCP4.5) and climate parameters
+
+```python
+
+import scmcoat as sc
+
+# initialize the model
+fm = sc.core.FairModel(
+       sc.core.ClimateParams(xr.open_dataset(params_filepath))
+       )
+
+# Open up the test emissions to use as a demo
+emissions = fm.get_test_emissions()
+
+# run FaIR with these emissions and median climate parameters
+response = fm.run(emissions, simid="median")  # an xr.Dataset
+
+response.temperature.plot()
+
+# the model can be run with differen climate parameters
+response2 = fm.run(emissions, simid=150)
+
+_ = xr.concat([response,response2], dim="simulation").temperature.plot.line(x="year")
+
+```
+
 FaIR can run any emissions pathway in this format, although may become unstable under radically different emissions. Note this has not been tested with different length time series of emissions.
