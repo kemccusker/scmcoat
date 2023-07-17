@@ -85,9 +85,9 @@ class FairModel:
         implementation of the ClimateModel Protocol
     """
     
-    def __init__(self, params=None, simid="default", debug=False):
+    def __init__(self, params=None, debug=False):
         self.params = params
-        self.simid = simid
+        self.simid = "default"
         self.debug = debug
     def __repr__(self):
         return f"{type(self).__name__}(params={self.params!r}, simid={self.simid})"

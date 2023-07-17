@@ -33,7 +33,7 @@ from fair.RCPs import rcp45
 
 emissions = rcp45.Emissions.emissions # numpy array
 ```
-
+FairModel.run() will also accept emissions that are an xarray.DataArray with coords that match the dataframe described above. E.g. a 40-element `gas` dimension and a 736- or 751-element `year` dimension.
 
 
 ## Outputs
@@ -43,9 +43,9 @@ Data variables:
     concentration  (year, gas) float64 278.0 722.0 273.0 ... 13.22 620.6
     forcing        (year, forcing_type) float64 2.623e-05 0.0 0.0 ... 0.0 0.0
     temperature    (year) float64 0.005061 0.009262 0.01363 ... 3.244 3.245
-    simulation     int64 -1
+    simulation     () <U7 'default'
 ```
-Here a `simulation` equal to `-1` indicates it's not running an ensemble of simulations but rather is running with default FaIR settings.
+Here a `simulation` equal to "default" indicates it's not running an ensemble of simulations with climate parameters but rather is running with default FaIR settings.
 
 
 ## Examples: 
@@ -69,7 +69,7 @@ response.temperature.plot()
 ```
 
 ### Run v1.* FaIR with demo emissions (CMIP5 RCP4.5) and climate parameters
-
+When `FairModel.run()` is called, the argument,`simid`, specifies how to use the climate parameters. The `simid` default value is "default". If `ClimateParams` have not been set and `simid` is "default", then FairModel is run with FaIR's default settings (see above example). If `ClimateParams` have been set but `simid` is "default", then FairModel will be run with "median" climate parameters. If `ClimateParams` are set, then `simid` can be set to "median" or a scalar integer index of the climate parameters.
 ```python
 
 import scmcoat as sc
