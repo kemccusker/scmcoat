@@ -195,12 +195,12 @@ class FairModel:
             else:
                 nt = emiss.shape[0] # assume time length is same as input emissions. assume no change in ref year
                 argslength = args["F_solar"].shape[0] # assume solar, volc, natural have same time dim
-                F_solar = np.zeros(nt)
-                F_volcanic = np.zeros(nt)
-                natural = np.zeros((nt, 2))
                 
                 # assuming solar/volc/nat have same start year as emiss
                 if argslength < nt:
+                    F_solar = np.zeros(nt)
+                    F_volcanic = np.zeros(nt)
+                    natural = np.zeros((nt, 2))
                     F_solar[:nt] = args["F_solar"]
                     F_volcanic[:nt] = args["F_volcanic"]
                     natural[:361, :] = args["natural"]
@@ -210,11 +210,17 @@ class FairModel:
                     # do something to add solar/volc/nat to inputs
                 elif argslength > nt:
                     # do something to chop off end of solar/volc/nat args
+                    F_solar = np.zeros(nt)
+                    F_volcanic = np.zeros(nt)
+                    natural = np.zeros((nt, 2))
                     F_solar[:nt] = args["F_solar"]
                     F_volcanic[:nt] = args["F_volcanic"]
                     natural[:nt, :] = args["natural"]
                 else: 
                     # they are equal, just set them directly
+                    F_solar = np.zeros(nt)
+                    F_volcanic = np.zeros(nt)
+                    natural = np.zeros((nt, 2))
                     F_solar[:nt] = args["F_solar"]
                     F_volcanic[:nt] = args["F_volcanic"]
                     natural[:nt, :] = args["natural"]
