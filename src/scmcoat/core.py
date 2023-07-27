@@ -193,7 +193,28 @@ class FairModel:
                     -1, :
                 ]  # hold the last element constant for the rest of the array
             else:
-                raise NotImplementedError("Unable to handle emissions other than lengths 736 or 751")
+                nt = emiss.shape[0] # assume time length is same as input emissions. assume no change in ref year
+                argslength = args["F_solar"].shape[0] # assume solar, volc, natural have same time dim
+
+                # assuming solar/volc/nat have same start year as emiss
+                if argslength < nt:
+                    F_solar[:nt] = args["F_solar"]
+                    F_volcanic[:nt] = args["F_volcanic"]
+                    natural[:361, :] = args["natural"]
+                    natural[361:, :] = args["natural"][
+                                    -1, :
+                                ]  
+                    # do something to add solar/volc/nat to inputs
+                elif argslength > nt:
+                    # do something to chop off end of solar/volc/nat args
+                    F_solar[:nt] = args["F_solar"]
+                    F_volcanic[:nt] = args["F_volcanic"]
+                    natural[:nt, :] = args["natural"]
+                else: 
+                    # they are equal, just set them directly
+                    F_solar[:nt] = args["F_solar"]
+                    F_volcanic[:nt] = args["F_volcanic"]
+                    natural[:nt, :] = args["natural"]
 
             C, F, T, ariaci, lambda_eff, ohc, heatflux = fair.forward.fair_scm(
                 emissions=emiss,
@@ -272,7 +293,8 @@ class FairModel:
         elif emiss.shape[0] == 751:
             reference_year = 1750
         else:
-            raise NotImplementedError("emissions time dimension is not recognized")
+            reference_year = 1750
+            #raise NotImplementedError("emissions time dimension is not recognized")
 
         ret = self._run(emiss=emiss.values, 
                         useMultigas=useMultigas)
