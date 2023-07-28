@@ -201,10 +201,10 @@ class FairModel:
                     F_solar = np.zeros(nt)
                     F_volcanic = np.zeros(nt)
                     natural = np.zeros((nt, 2))
-                    F_solar[:361] = args["F_solar"]
-                    F_volcanic[:361] = args["F_volcanic"]
-                    natural[:361, :] = args["natural"]
-                    natural[361:, :] = args["natural"][
+                    F_solar[:argslength] = args["F_solar"]
+                    F_volcanic[:argslength] = args["F_volcanic"]
+                    natural[:argslength, :] = args["natural"]
+                    natural[argslength:, :] = args["natural"][
                                     -1, :
                                 ]  
                     # do something to add solar/volc/nat to inputs
@@ -213,9 +213,9 @@ class FairModel:
                     F_solar = np.zeros(nt)
                     F_volcanic = np.zeros(nt)
                     natural = np.zeros((nt, 2))
-                    F_solar[:nt] = args["F_solar"]
-                    F_volcanic[:nt] = args["F_volcanic"]
-                    natural[:nt, :] = args["natural"]
+                    F_solar = args["F_solar"][:nt]
+                    F_volcanic = args["F_volcanic"][:nt]
+                    natural = args["natural"][:nt, :]
                 else: 
                     # they are equal, just set them directly
                     F_solar = np.zeros(nt)
