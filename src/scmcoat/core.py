@@ -297,14 +297,11 @@ class FairModel:
         
         # default time dimensions for different versions of FaIR v1.*
         # TODO check if other time dimensions work
-        if emiss.shape[0] == 736:
-            reference_year = 1765   
-        elif emiss.shape[0] == 751:
-            reference_year = 1750
-        else:
+        #if emiss.shape[0] == 736:
+            #reference_year = 1765   
+        #elif emiss.shape[0] == 751:
             #reference_year = 1750
-            #raise NotImplementedError("emissions time dimension is not recognized")
-
+            
         ret = self._run(emiss=emiss.values, 
                         useMultigas=useMultigas)
 
