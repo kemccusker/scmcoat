@@ -167,7 +167,7 @@ class FairModel:
             # TODO generalize time dim. 
             # TODO test different length of emissions time series
             if emiss.shape[0] == 736:
-                reference_year = 1765
+                #reference_year = 1765
 
                 nt = 736 
                 F_solar = np.zeros(nt)
@@ -180,7 +180,7 @@ class FairModel:
                     -1, :
                 ]  # hold the last element constant for the rest of the array
             elif emiss.shape[0] == 751:
-                reference_year = 1750
+                #reference_year = 1750
 
                 nt = 751 
                 F_solar = np.zeros(nt)
@@ -302,7 +302,7 @@ class FairModel:
         elif emiss.shape[0] == 751:
             reference_year = 1750
         else:
-            reference_year = 1750
+            #reference_year = 1750
             #raise NotImplementedError("emissions time dimension is not recognized")
 
         ret = self._run(emiss=emiss.values, 
@@ -311,7 +311,7 @@ class FairModel:
         # Prep the FaIR outputs into xarray objects
 
         # TODO generalize the years
-        years = np.arange(reference_year, 2501)  # gets range of years in desired period
+        years = emiss.year.values  # gets range of years in desired period
         gases = (
             self.get_list_of_concentration_gases()
         )  # gets list of gases names from this function defined above
