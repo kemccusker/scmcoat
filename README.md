@@ -12,28 +12,32 @@ This package is very new. This may change in breaking ways.
 ## Inputs
 Emissions inputs to FaIR are a specific format. FaIR v1.* expects 39-species of GHGs if run in `MultiGas` mode.
 
-Demo emissions (see code example below) are a dataframe with dimensions Year x Gas. Note that there are *40* columns and the first column is "year", the rest are gases. 
+Demo emissions (see code example below) are an `xarray.DataArray` with dimensions `year` x `gas`. Note that there are *40* elements in `gas`: the first element is "year", and the rest are gases. 
 ```
-The columns:
-Index(['year', 'CO2_Fossil', 'CO2_Land', 'CH4', 'N2O', 'SOx', 'CO', 'NMVOC',
+The `gas` coordinate:
+array(['year', 'CO2_Fossil', 'CO2_Land', 'CH4', 'N2O', 'SOx', 'CO', 'NMVOC',
        'NOx', 'BC', 'OC', 'NH3', 'CF4', 'C2F6', 'C6F14', 'HFC23', 'HFC32',
        'HFC4310mee', 'HFC125', 'HFC134a', 'HFC143a', 'HFC227ea', 'HFC245fa',
        'SF6', 'CFC11', 'CFC12', 'CFC113', 'CFC114', 'CFC115', 'CARB_TET',
        'MCF', 'HCFC22', 'HCFC141b', 'HCFC142b', 'Halon1211', 'Halon1202',
-       'Halon1301', 'Halon2402', 'CH3Br', 'CH3Cl'],
-      dtype='object')
-# the index:      
-RangeIndex(start=0, stop=736, step=1) # here year runs from 1765-2500
+       'Halon1301', 'Halon2402', 'CH3Br', 'CH3Cl'], dtype='<U10')
+The `year` coordinate:      
+array([1765., 1766., 1767., ..., 2498., 2499., 2500.]) # year runs from 1765-2500 or 1751-2500 
 ```
+TODO: add more detail about year coord
 
-Demo emissions are RCP4.5 from the CMIP5 era (adapted from these emissions from FaIR: 
+Demo emissions are SSP2-4.5 from the CMIP6 era. Standardized CMIP6 emissions can be obtained like: 
 ```python
-import fair
-from fair.RCPs import rcp45
+import scmcoat as sc
 
-emissions = rcp45.Emissions.emissions # numpy array
+# demo emissions
+emissions = sc.get_test_emissions() # returns xr.DataArray of SSP2-4.5
+
+# or get any CMIP6 emissions pathway
+emissions = sc.utils.rcmip_emissions("ssp370") # returns xr.DataArray
+
 ```
-FairModel.run() will also accept emissions that are an xarray.DataArray with coords that match the dataframe described above. E.g. a 40-element `gas` dimension and a 736- or 751-element `year` dimension.
+FairModel.run() will also accept emissions that are `pandas.DataFrame` with columns that match the `gas` coord and index that matches `year`, as described above. E.g. a 40-element `gas` dimension and a 736- or 751-element `year` dimension.
 
 
 ## Outputs
@@ -49,7 +53,7 @@ Here a `simulation` equal to "default" indicates it's not running an ensemble of
 
 
 ## Examples: 
-### Run v1.* FaIR with demo emissions (CMIP5 RCP4.5)
+### Run v1.* FaIR with demo emissions (CMIP6 SSP2-4.5)
 
 ```python
 
@@ -67,17 +71,37 @@ response = fm.run(emissions)  # an xr.Dataset
 response.temperature.plot()
 
 ```
-
-### Run v1.* FaIR with demo emissions (CMIP5 RCP4.5) and climate parameters
-When `FairModel.run()` is called, the argument,`simid`, specifies how to use the climate parameters. The `simid` default value is "default". If `ClimateParams` have not been set and `simid` is "default", then FairModel is run with FaIR's default settings (see above example). If `ClimateParams` have been set but `simid` is "default", then FairModel will be run with "median" climate parameters. If `ClimateParams` are set, then `simid` can be set to "median" or a scalar integer index of the climate parameters.
+OR
 ```python
 
 import scmcoat as sc
 
 # initialize the model
-fm = sc.core.FairModel(
-       sc.core.ClimateParams(xr.open_dataset(params_filepath))
-       )
+fm = sc.FairModel()
+
+# run FaIR with test emissions under its default settings
+response = fm.test_run()  # an xr.Dataset
+
+response.temperature.plot()
+
+```
+
+### Run v1.* FaIR with demo emissions (CMIP6 SSP2-4.5) and climate parameters
+When `FairModel.run()` is called, the argument,`simid`, specifies how to use the climate parameters. The `simid` default value is "default". 
+- If `ClimateParams` _have not_ been set and `simid` is "default", then FairModel is run with FaIR's default settings (see above example).
+- If `ClimateParams` _have_ been set but `simid` is "default", then FairModel will be run with "median" climate parameters. This is our usual "point estimate" setup.
+- If `ClimateParams` _have_ been set, then `simid` can be set to "median" or a scalar integer that indexes the climate parameters.
+```python
+
+import scmcoat as sc
+
+params_filepath = "<path_to_params_file.nc>" # TODO add pointer to the file or add to repo
+
+# set up ClimateParams
+cp = sc.core.ClimateParams(params=xr.open_dataset(params_filepath))
+
+# initialize the model with climate parameters
+fm = sc.core.FairModel(cp)
 
 # Open up the test emissions to use as a demo
 emissions = fm.get_test_emissions()
@@ -87,11 +111,11 @@ response = fm.run(emissions, simid="median")  # an xr.Dataset
 
 response.temperature.plot()
 
-# the model can be run with differen climate parameters
+# the model can be run with different climate parameters
 response2 = fm.run(emissions, simid=150)
 
 _ = xr.concat([response,response2], dim="simulation").temperature.plot.line(x="year")
 
 ```
 
-FaIR can run any emissions pathway in this format, although may become unstable under radically different emissions. Note this has not been tested with different length time series of emissions.
+FaIR can run any emissions pathway in this format, although may become unstable under radically different emissions. Note this has not been tested with different length time series of emissions and will likely throw errors.
