@@ -338,7 +338,9 @@ class FairModel:
         import pkg_resources
         from . import utils
                 
-        return utils.rcmip_emissions("ssp245")
+        # without further updates, FaIR versions < 2 run in default mode
+        # expect the start year to be 1765
+        return utils.rcmip_emissions("ssp245").sel(year=slice(1765, None))
 
     
     def get_cmip_scenario_emissions(self, scenario, cmipera=5):
@@ -367,5 +369,5 @@ class FairModel:
         
         emiss = self.get_test_emissions()
         
-        return self.run(emiss.sel(year=slice(1765,None)))
+        return self.run(emiss)
     
