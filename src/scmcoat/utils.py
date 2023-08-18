@@ -20,7 +20,9 @@ from scmcoat.core import FAIR_EMISSIONS_GASES
 def download_emissions_csv(url="https://rcmip-protocols-au.s3-ap-southeast-2.amazonaws.com/v5.1.0/rcmip-emissions-annual-means-v5-1-0.csv"):
     return pd.read_csv(url)
 
-
+# This code credited to Chris Smith AR6 repo
+# From https://github.com/chrisroadmap/ar6/blob/main/notebooks/190_WG3_run-constrained-fair-ensemble-concentration-driven.ipynb
+#   from the SSP245 cell
 def rcmip_emissions(scenario):
     NTOA_ZJ = 4 * np.pi * EARTH_RADIUS**2 * SECONDS_PER_YEAR * 1e-21 
     
