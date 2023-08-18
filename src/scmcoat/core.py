@@ -10,6 +10,7 @@ import xarray as xr
 import fair
 from dataclasses import dataclass
 
+
 FAIR_EMISSIONS_GASES = ['CO2_Fossil',
                 'CO2_Land',
                 'CH4',
@@ -333,13 +334,12 @@ class FairModel:
 
 
     def get_test_emissions(self):
-        # TODO update the test emissions data. CMIP5 emissions don't go well with CMIP6 params
         import pandas as pd
         import pkg_resources
-        
-        fn = pkg_resources.resource_filename("scmcoat","testdata/rcp45emissions.csv")
+        from . import utils
+                
+        return utils.rcmip_emissions("ssp245")
 
-        return pd.read_csv(fn)
     
     def get_cmip_scenario_emissions(self, scenario, cmipera=5):
         # TODO: this is untested so far. Test it.
@@ -367,5 +367,5 @@ class FairModel:
         
         emiss = self.get_test_emissions()
         
-        return self._run(emiss.values)
+        return self.run(emiss.sel(year=slice(1765,None)))
     
