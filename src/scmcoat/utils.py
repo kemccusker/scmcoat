@@ -5,6 +5,9 @@
     functions to prepare emissions and other helpers
 """
 from functools import cache
+from json import loads as json_loads
+from importlib.resources import files
+
 import pandas as pd
 import numpy as np
 import xarray as xr
@@ -13,6 +16,7 @@ from fair.constants import molwt
 from fair.constants.general import ppm_gtc
 from fair.constants.general import EARTH_RADIUS, SECONDS_PER_YEAR
 
+from scmcoat import ClimateParams
 from scmcoat.core import FAIR_EMISSIONS_GASES
 
 # TODO: Use something more stable like a DOI link? 
@@ -77,3 +81,35 @@ def rcmip_emissions(scenario):
     emisds = xr.DataArray(emis, coords={"year":emis[:,0],
                                "gas":["year"]+FAIR_EMISSIONS_GASES})
     return emisds #, conc
+
+
+def _get_climateparamsdata(filename: str) -> bytes:
+    return files(f"{__package__}.climateparams_data").joinpath(filename).read_bytes()
+
+
+def _inflate_climateparamsdata(
+    *, slim_fl: [str | bytes | None] = None, common_fl: [str | bytes | None] = None
+) -> list[dict]:
+    if slim_fl is None:
+        slim_fl = _get_climateparamsdata("fair-1.6.2-wg3-params-slim.json")
+    if common_fl is None:
+        common_fl = _get_climateparamsdata("fair-1.6.2-wg3-params-common.json")
+
+    slim = json_loads(slim_fl)
+    common = json_loads(common_fl)
+    return [d | common for d in slim]
+
+
+def _climateparamslist2ds(config_list: list[dict]) -> xr.Dataset:
+    pass
+
+
+def get_fairv1_climateparams() -> ClimateParams:
+    """
+    Get ClimateParams instance from FaIR v1.6.2 WG3 calibrated and constrained parameter set
+
+    This data is stored within the package and does not require internet
+    access. The original data is available online at
+    https://doi.org/10.5281/zenodo.6601980
+    """
+    return ClimateParams(params=_climateparamslist2ds(_inflate_climateparamsdata()))
