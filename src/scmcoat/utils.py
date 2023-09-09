@@ -28,6 +28,47 @@ def download_emissions_csv(url="https://rcmip-protocols-au.s3-ap-southeast-2.ama
 # From https://github.com/chrisroadmap/ar6/blob/main/notebooks/190_WG3_run-constrained-fair-ensemble-concentration-driven.ipynb
 #   from the SSP245 cell
 def rcmip_emissions(scenario):
+    
+    units = ['Gt C/year',
+             'Gt C/year',
+             'Mt CH4/yr',
+             'tonnes N2/year',
+             'Mt S/year',
+             'Mt CO/yr',
+             'Mt VOC/yr',
+             'Mt N/year',
+             'Mt BC/yr',
+             'Mt OC/yr',
+             'Mt NH3/yr',
+             'kt CF4/yr',
+             'kt C2F6/yr',
+             'kt C6F14/yr',
+             'kt HFC23/yr',
+             'kt HFC32/yr',
+             'kt HFC4310mee/yr',
+             'kt HFC125/yr',
+             'kt HFC134a/yr',
+             'kt HFC143a/yr',
+             'kt HFC227ea/yr',
+             'kt HFC245fa/yr',
+             'kt SF6/yr',
+             'kt CFC11/yr',
+             'kt CFC12/yr',
+             'kt CFC113/yr',
+             'kt CFC114/yr',
+             'kt CFC115/yr',
+             'kt CCl4/yr',
+             'kt CH3CCl3/yr',
+             'kt HCFC22/yr',
+             'kt HCFC141b/yr',
+             'kt HCFC142b/yr',
+             'kt Halon1211/yr',
+             'kt Halon1202/yr',
+             'kt Halon1301/yr',
+             'kt Halon2402/yr',
+             'kt CH3Br/yr',
+             'kt CH3Cl/yr']
+    
     NTOA_ZJ = 4 * np.pi * EARTH_RADIUS**2 * SECONDS_PER_YEAR * 1e-21 
     
     emis_all = download_emissions_csv()
@@ -80,6 +121,7 @@ def rcmip_emissions(scenario):
     # emisds = emisds.assign_coords(year=emisds.isel(gas=0).values)
     emisds = xr.DataArray(emis, coords={"year":emis[:,0],
                                "gas":["year"]+FAIR_EMISSIONS_GASES})
+    emisds["units"] = xr.DataArray(units, coords = {"gas": emisds.gas[1:]})
     return emisds #, conc
 
 
