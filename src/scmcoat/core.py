@@ -323,9 +323,23 @@ class FairModel:
             coords=[years],
             name="temperature",
         )
-        response_ds = xr.merge(
-            [C_xarray, F_xarray, T_xarray]
-        )
+        if len(ret) == 7:
+            ohc_xarray = xr.DataArray(
+                ohc,
+                dims=[
+                    "year",
+                ],
+                coords=[years],
+                name="ocean_heat_content",
+            )
+            response_ds = xr.merge(
+                [C_xarray, F_xarray, T_xarray, ohc_xarray]
+            )
+        else:
+            
+            response_ds = xr.merge(
+                [C_xarray, F_xarray, T_xarray]
+            )
         response_ds["simulation"] = self.simid
         
         # TODO Add attributes
