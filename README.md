@@ -47,6 +47,7 @@ Data variables:
     concentration  (year, gas) float64 278.0 722.0 273.0 ... 13.22 620.6
     forcing        (year, forcing_type) float64 2.623e-05 0.0 0.0 ... 0.0 0.0
     temperature    (year) float64 0.005061 0.009262 0.01363 ... 3.244 3.245
+    ocean_heat_content (year) float64 4.358e+21 7.791e+21 ... 5.822e+24
     simulation     () <U7 'default'
 ```
 Here a `simulation` equal to "default" indicates it's not running an ensemble of simulations with climate parameters but rather is running with default FaIR settings.
