@@ -168,7 +168,7 @@ class FairModel:
             # TODO generalize time dim. 
             # TODO test different length of emissions time series
             if emiss.shape[0] == 736:
-                reference_year = 1765
+                #reference_year = 1765
 
                 nt = 736 
                 F_solar = np.zeros(nt)
@@ -181,7 +181,7 @@ class FairModel:
                     -1, :
                 ]  # hold the last element constant for the rest of the array
             elif emiss.shape[0] == 751:
-                reference_year = 1750
+                #reference_year = 1750
 
                 nt = 751 
                 F_solar = np.zeros(nt)
@@ -194,7 +194,37 @@ class FairModel:
                     -1, :
                 ]  # hold the last element constant for the rest of the array
             else:
-                raise NotImplementedError("Unable to handle emissions other than lengths 736 or 751")
+                nt = emiss.shape[0] # assume time length is same as input emissions. assume no change in ref year
+                argslength = args["F_solar"].shape[0] # assume solar, volc, natural have same time dim
+                
+                # assuming solar/volc/nat have same start year as emiss
+                if argslength < nt:
+                    F_solar = np.zeros(nt)
+                    F_volcanic = np.zeros(nt)
+                    natural = np.zeros((nt, 2))
+                    F_solar[:argslength] = args["F_solar"]
+                    F_volcanic[:argslength] = args["F_volcanic"]
+                    natural[:argslength, :] = args["natural"]
+                    natural[argslength:, :] = args["natural"][
+                                    -1, :
+                                ]  
+                    # do something to add solar/volc/nat to inputs
+                elif argslength > nt:
+                    # do something to chop off end of solar/volc/nat args
+                    F_solar = np.zeros(nt)
+                    F_volcanic = np.zeros(nt)
+                    natural = np.zeros((nt, 2))
+                    F_solar = args["F_solar"][:nt]
+                    F_volcanic = args["F_volcanic"][:nt]
+                    natural = args["natural"][:nt, :]
+                else: 
+                    # they are equal, just set them directly
+                    F_solar = np.zeros(nt)
+                    F_volcanic = np.zeros(nt)
+                    natural = np.zeros((nt, 2))
+                    F_solar[:nt] = args["F_solar"]
+                    F_volcanic[:nt] = args["F_volcanic"]
+                    natural[:nt, :] = args["natural"]
 
             C, F, T, ariaci, lambda_eff, ohc, heatflux = fair.forward.fair_scm(
                 emissions=emiss,
@@ -268,20 +298,18 @@ class FairModel:
         
         # default time dimensions for different versions of FaIR v1.*
         # TODO check if other time dimensions work
-        if emiss.shape[0] == 736:
-            reference_year = 1765   
-        elif emiss.shape[0] == 751:
-            reference_year = 1750
-        else:
-            raise NotImplementedError("emissions time dimension is not recognized")
-
+        #if emiss.shape[0] == 736:
+            #reference_year = 1765   
+        #elif emiss.shape[0] == 751:
+            #reference_year = 1750
+            
         ret = self._run(emiss=emiss.values, 
                         useMultigas=useMultigas)
 
         # Prep the FaIR outputs into xarray objects
 
         # TODO generalize the years
-        years = np.arange(reference_year, 2501)  # gets range of years in desired period
+        years = emiss.year.values  # gets range of years in desired period
         gases = (
             self.get_list_of_concentration_gases()
         )  # gets list of gases names from this function defined above
