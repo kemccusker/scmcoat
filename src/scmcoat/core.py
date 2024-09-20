@@ -365,10 +365,10 @@ class FairModel:
 
 
     def get_test_emissions(self):
-        import pandas as pd
-        import pkg_resources
+        # import pandas as pd
+        # import pkg_resources
         from . import utils
-                
+        print("get_test_emissions() @@@@@")
         # without further updates, FaIR versions < 2 run in default mode
         # expect the start year to be 1765
         return utils.rcmip_emissions("ssp245").sel(year=slice(1765, None))
