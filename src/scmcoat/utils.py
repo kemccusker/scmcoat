@@ -32,7 +32,7 @@ def rcmip_emissions(scenario):
     units = ['Gt C/year',
              'Gt C/year',
              'Mt CH4/yr',
-             'tonnes N2/year',
+             'Mt N2/year',
              'Mt S/year',
              'Mt CO/yr',
              'Mt VOC/yr',

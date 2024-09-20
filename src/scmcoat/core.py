@@ -295,13 +295,30 @@ class FairModel:
             raise NotImplementedError(f"FaIR output unrecognized. Expecting length of 3 or 7, got {len(ret)}")
 
         if useMultigas:
+                
             C_xarray = xr.DataArray(
                 C, dims=["year", "gas"], coords=[years, gases], name="concentration"
             )
+            if F.shape[1] == 13:
+                Fcoord = [
+                    "CO2", "CH4", "N2O",
+                    "Minor GHGs (CFCs, HFCs etc)",
+                    "Tropospheric ozone",
+                    "Stratospheric ozone",
+                    "Stratospheric water vapour from methane oxidation",
+                    "Contrails",
+                    "Aerosols",
+                    "Black carbon on snow",
+                    "Land use",
+                    "Volcanic",
+                    "Solar",
+                ]
+            else:
+                Fcoord = np.arange(0, F.shape[1])
             F_xarray = xr.DataArray(
                 F,
                 dims=["year", "forcing_type"],
-                coords=[years, np.arange(0, F.shape[1])],
+                coords=[years, Fcoord],
                 name="forcing",
             )
         else:
@@ -348,10 +365,8 @@ class FairModel:
 
 
     def get_test_emissions(self):
-        import pandas as pd
-        import pkg_resources
         from . import utils
-                
+        
         # without further updates, FaIR versions < 2 run in default mode
         # expect the start year to be 1765
         return utils.rcmip_emissions("ssp245").sel(year=slice(1765, None))
